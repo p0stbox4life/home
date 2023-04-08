@@ -1,55 +1,26 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Reviews Page</title>
-  </head>
-  <body>
-    <h1>Reviews Page</h1>
-    <form id="review-form">
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Project Luna Reviews</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Project Luna Reviews</h1>
+  </header>
+  <main>
+    <form onsubmit="event.preventDefault(); submitReview();">
       <label for="name">Name:</label>
-      <input type="text" id="name" name="name" required><br>
-
-      <label for="review">Review:</label><br>
-      <textarea id="review" name="review" required></textarea><br>
-
-      <input type="submit" value="Submit">
+      <input type="text" id="name" required>
+      <label for="review">Review:</label>
+      <textarea id="review" required></textarea>
+      <button type="submit">Submit Review</button>
     </form>
-
-    <h2>Latest Reviews:</h2>
-    <ul id="reviews-list">
-      <?php include 'load-reviews.php'; ?>
-    </ul>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-      // Function to handle form submission
-      function handleSubmit(event) {
-        event.preventDefault(); // Prevents the page from refreshing on form submission
-        
-        // Get form values
-        const name = document.getElementById("name").value;
-        const review = document.getElementById("review").value;
-        
-        // Send data to server
-        $.ajax({
-          type: "POST",
-          url: "store-review.php",
-          data: { name: name, review: review },
-          success: function(data) {
-            // Reload reviews list
-            $("#reviews-list").load("load-reviews.php");
-            
-            // Reset form
-            document.getElementById("name").value = "";
-            document.getElementById("review").value = "";
-          }
-        });
-      }
-      
-      // Add event listener to form submission
-      const form = document.getElementById("review-form");
-      form.addEventListener("submit", handleSubmit);
-    </script>
-  </body>
+    <h2>Reviews:</h2>
+    <ul id="reviews-list"></ul>
+  </main>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="script.js"></script>
+</body>
 </html>
