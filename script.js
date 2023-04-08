@@ -3,19 +3,17 @@ $(document).ready(function() {
 });
 
 function loadReviews() {
-    $.get("reviews.json", function(data) {
-        var reviews = JSON.parse(data);
-        reviews.sort(function(a, b) {
-            return b.timestamp - a.timestamp;
-        });
-        var reviewsList = document.getElementById("reviews-list");
-        reviewsList.innerHTML = "";
-        reviews.forEach(function(review) {
-            var li = document.createElement("li");
-            var reviewHTML = '<div class="review-info"><span class="review-name">' + review.name + '</span><span class="review-timestamp">' + formatDate(review.timestamp) + '</span></div><div class="review-text">' + review.review + '</div><div class="review-patches">' + review.patches + '</div>';
-            li.innerHTML = reviewHTML;
-            reviewsList.appendChild(li);
-        });
+    var reviews = JSON.parse(localStorage.getItem("reviews")) || [];
+    reviews.sort(function(a, b) {
+        return b.timestamp - a.timestamp;
+    });
+    var reviewsList = document.getElementById("reviews-list");
+    reviewsList.innerHTML = "";
+    reviews.forEach(function(review) {
+        var li = document.createElement("li");
+        var reviewHTML = '<div class="review-info"><span class="review-name">' + review.name + '</span><span class="review-timestamp">' + formatDate(review.timestamp) + '</span></div><div class="review-text">' + review.review + '</div><div class="review-patches">' + review.patches + '</div>';
+        li.innerHTML = reviewHTML;
+        reviewsList.appendChild(li);
     });
 }
 
@@ -23,12 +21,14 @@ function submitReview() {
     var name = document.getElementById("name").value;
     var review = document.getElementById("review").value;
     var patches = document.getElementById("patches").value;
-    $.post("submit-review.php", { name: name, review: review, patches: patches }, function() {
-        loadReviews();
-        document.getElementById("name").value = "";
-        document.getElementById("review").value = "";
-        document.getElementById("patches").value = "";
-    });
+    var timestamp = Date.now() / 1000;
+    var reviews = JSON.parse(localStorage.getItem("reviews")) || [];
+    reviews.push({ name: name, review: review, patches: patches, timestamp: timestamp });
+    localStorage.setItem("reviews", JSON.stringify(reviews));
+    loadReviews();
+    document.getElementById("name").value = "";
+    document.getElementById("review").value = "";
+    document.getElementById("patches").value = "";
 }
 
 function formatDate(timestamp) {
