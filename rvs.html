@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Reviews Page</title>
+  </head>
+  <body>
+    <h1>Reviews Page</h1>
+    <form>
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required><br>
+
+      <label for="review">Review:</label><br>
+      <textarea id="review" name="review" required></textarea><br>
+
+      <input type="submit" value="Submit">
+    </form>
+    
+    <h2>Latest Reviews:</h2>
+    <ul id="reviews-list">
+      <!-- Reviews will be added here dynamically with JavaScript -->
+    </ul>
+    
+    <script>
+      // Function to handle form submission
+      function handleSubmit(event) {
+        event.preventDefault(); // Prevents the page from refreshing on form submission
+        
+        // Get form values
+        const name = document.getElementById("name").value;
+        const review = document.getElementById("review").value;
+        
+        // Create new review element
+        const newReview = document.createElement("li");
+        newReview.innerHTML = `<strong>${name}:</strong> ${review}`;
+        
+        // Add new review element to reviews list
+        const reviewsList = document.getElementById("reviews-list");
+        reviewsList.appendChild(newReview);
+        
+        // Reset form
+        document.getElementById("name").value = "";
+        document.getElementById("review").value = "";
+      }
+      
+      // Add event listener to form submission
+      const form = document.querySelector("form");
+      form.addEventListener("submit", handleSubmit);
+    </script>
+  </body>
+</html>
