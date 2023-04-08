@@ -6,7 +6,7 @@
   </head>
   <body>
     <h1>Reviews Page</h1>
-    <form>
+    <form id="review-form">
       <label for="name">Name:</label>
       <input type="text" id="name" name="name" required><br>
 
@@ -15,12 +15,13 @@
 
       <input type="submit" value="Submit">
     </form>
-    
+
     <h2>Latest Reviews:</h2>
     <ul id="reviews-list">
-      <!-- Reviews will be added here dynamically with JavaScript -->
+      <?php include 'load-reviews.php'; ?>
     </ul>
-    
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
       // Function to handle form submission
       function handleSubmit(event) {
@@ -30,21 +31,24 @@
         const name = document.getElementById("name").value;
         const review = document.getElementById("review").value;
         
-        // Create new review element
-        const newReview = document.createElement("li");
-        newReview.innerHTML = `<strong>${name}:</strong> ${review}`;
-        
-        // Add new review element to reviews list
-        const reviewsList = document.getElementById("reviews-list");
-        reviewsList.appendChild(newReview);
-        
-        // Reset form
-        document.getElementById("name").value = "";
-        document.getElementById("review").value = "";
+        // Send data to server
+        $.ajax({
+          type: "POST",
+          url: "store-review.php",
+          data: { name: name, review: review },
+          success: function(data) {
+            // Reload reviews list
+            $("#reviews-list").load("load-reviews.php");
+            
+            // Reset form
+            document.getElementById("name").value = "";
+            document.getElementById("review").value = "";
+          }
+        });
       }
       
       // Add event listener to form submission
-      const form = document.querySelector("form");
+      const form = document.getElementById("review-form");
       form.addEventListener("submit", handleSubmit);
     </script>
   </body>
