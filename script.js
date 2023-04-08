@@ -1,61 +1,44 @@
-document.addEventListener("DOMContentLoaded", function() {
-    loadReviews();
-    document.getElementById("review-form").addEventListener("submit", submitReview);
-});
-
-function loadReviews() {
-    fetch("reviews.txt")
-        .then(response => response.text())
-        .then(text => {
-            const reviews = text.split("\n");
-            reviews.pop(); // remove last empty line
-            const reviewsList = document.getElementById("reviews-list");
-            reviewsList.innerHTML = "";
-            reviews.forEach(review => {
-                const [name, timestamp, reviewText, patches] = review.split("|");
-                const li = document.createElement("li");
-                const reviewHTML = `
-                    <div class="review-info">
-                        <span class="review-name">${name}</span>
-                        <span class="review-timestamp">${formatDate(timestamp)}</span>
-                    </div>
-                    <div class="review-text">${reviewText}</div>
-                    <div class="review-patches">${patches}</div>
-                `;
-                li.innerHTML = reviewHTML;
-                reviewsList.appendChild(li);
-            });
-        })
-        .catch(error => console.error(error));
+// Function to display reviews on the webpage
+function displayReviews() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var response = JSON.parse(this.responseText);
+      var output = "";
+      for (var i = 0; i < response.length; i++) {
+        output += "<div class='review'>";
+        output += "<h3>" + response[i].name + "</h3>";
+        output += "<h4>" + response[i].date + "</h4>";
+        output += "<p>" + response[i].review + "</p>";
+        output += "</div>";
+      }
+      document.getElementById("reviews").innerHTML = output;
+    }
+  };
+  xhttp.open("GET", "reviews.php", true);
+  xhttp.send();
 }
 
-function submitReview(event) {
-    event.preventDefault();
-    const name = document.getElementById("name").value;
-    const review = document.getElementById("review").value;
-    const patches = document.getElementById("patches").value;
-    const timestamp = Math.floor(Date.now() / 1000);
-    const reviewText = `${name}|${timestamp}|${review}|${patches}\n`;
-    const formData = new FormData();
-    formData.append("review", reviewText);
-    fetch("submit-review.php", { method: "POST", body: formData })
-        .then(() => {
-            loadReviews();
-            document.getElementById("review-form").reset();
-        })
-        .catch(error => console.error(error));
+// Function to add a new review
+function addReview() {
+  var name = document.getElementById("name").value;
+  var review = document.getElementById("review").value;
+  if (name == "" || review == "") {
+    alert("Please fill in all fields.");
+    return false;
+  }
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      displayReviews();
+      document.getElementById("name").value = "";
+      document.getElementById("review").value = "";
+    }
+  };
+  xhttp.open("POST", "add_review.php", true);
+  xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xhttp.send("name=" + name + "&review=" + review);
 }
 
-function formatDate(timestamp) {
-    const date = new Date(parseInt(timestamp) * 1000);
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const month = monthNames[date.getMonth()];
-    const day = date.getDate();
-    const year = date.getFullYear();
-    let hour = date.getHours();
-    let minutes = date.getMinutes();
-    const ampm = hour >= 12 ? 'pm' : 'am';
-    hour = hour % 12 || 12;
-    minutes = minutes < 10 ? '0' + minutes : minutes;
-    return `${month} ${day}, ${year} at ${hour}:${minutes}${ampm}`;
-}
+// Call the displayReviews function when the page is loaded
+window.onload = displayReviews;
