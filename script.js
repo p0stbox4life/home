@@ -5,20 +5,22 @@ document.addEventListener("DOMContentLoaded", function() {
 
 function loadReviews() {
     fetch("reviews.txt")
-        .then(response => response.json())
-        .then(reviews => {
-            reviews.sort((a, b) => b.timestamp - a.timestamp);
+        .then(response => response.text())
+        .then(text => {
+            const reviews = text.split("\n");
+            reviews.pop(); // remove last empty line
             const reviewsList = document.getElementById("reviews-list");
             reviewsList.innerHTML = "";
             reviews.forEach(review => {
+                const [name, timestamp, reviewText, patches] = review.split("|");
                 const li = document.createElement("li");
                 const reviewHTML = `
                     <div class="review-info">
-                        <span class="review-name">${review.name}</span>
-                        <span class="review-timestamp">${formatDate(review.timestamp)}</span>
+                        <span class="review-name">${name}</span>
+                        <span class="review-timestamp">${formatDate(timestamp)}</span>
                     </div>
-                    <div class="review-text">${review.review}</div>
-                    <div class="review-patches">${review.patches}</div>
+                    <div class="review-text">${reviewText}</div>
+                    <div class="review-patches">${patches}</div>
                 `;
                 li.innerHTML = reviewHTML;
                 reviewsList.appendChild(li);
@@ -33,11 +35,9 @@ function submitReview(event) {
     const review = document.getElementById("review").value;
     const patches = document.getElementById("patches").value;
     const timestamp = Math.floor(Date.now() / 1000);
+    const reviewText = `${name}|${timestamp}|${review}|${patches}\n`;
     const formData = new FormData();
-    formData.append("name", name);
-    formData.append("review", review);
-    formData.append("patches", patches);
-    formData.append("timestamp", timestamp);
+    formData.append("review", reviewText);
     fetch("submit-review.php", { method: "POST", body: formData })
         .then(() => {
             loadReviews();
@@ -47,7 +47,7 @@ function submitReview(event) {
 }
 
 function formatDate(timestamp) {
-    const date = new Date(timestamp * 1000);
+    const date = new Date(parseInt(timestamp) * 1000);
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const month = monthNames[date.getMonth()];
     const day = date.getDate();
